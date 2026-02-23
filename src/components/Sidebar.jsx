@@ -20,9 +20,39 @@ export default function Sidebar() {
         setFormData({ ...formData, [e.target.name]: e.target.value });
     };
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
         console.log('Predicting delay risk for:', formData);
+
+        // Map frontend data to backend model expectations (mock logic)
+        const payload = {
+            departure_delay: 0, // Assuming 0 for now
+            distance: 1000, // Mock distance
+            airline_code: formData.airline ? formData.airline.length : 0, // Mock mapping
+            weather_severity: 0.5 // Mock weather
+        };
+
+        try {
+            const response = await fetch('http://127.0.0.1:8000/api/predict', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(payload),
+            });
+
+            if (response.ok) {
+                const result = await response.json();
+                console.log('Prediction Result:', result);
+                alert(`Prediction: ${result.risk_level} Risk (Probability: ${(result.probability * 100).toFixed(1)}%)`);
+            } else {
+                console.error('Prediction failed');
+                alert('Prediction failed');
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            alert('Error connecting to backend');
+        }
     };
 
     const handleClear = () => {

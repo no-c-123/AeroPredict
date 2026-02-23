@@ -4,21 +4,16 @@ import './RightSidebar.css';
 
 export default function RightSidebar() {
 
-    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [activeModal, setActiveModal] = useState(null);
 
     // Mock data
-    const predictionsOfDay = [
+    const userPredictions = [
         { id: 1, flight: 'AA-123', route: 'JFK -> LHR', risk: 'Low', time: '10:00 AM' },
         { id: 2, flight: 'DL-456', route: 'LAX -> HND', risk: 'High', time: '11:30 AM' },
         { id: 3, flight: 'UA-789', route: 'SFO -> SIN', risk: 'Medium', time: '01:15 PM' },
     ];
 
-    const recentPredictions = [
-        { id: 1, flight: 'BA-101', risk: 'Low', date: 'Just now' },
-        { id: 2, flight: 'AF-202', risk: 'High', date: '2 mins ago' },
-    ];
-
-    const riskFlights = [
+    const currentRiskFactors = [
         { id: 1, flight: 'NK-555', route: 'MCO -> EWR', risk: '92%', reason: 'Weather' },
         { id: 2, flight: 'F9-333', route: 'DEN -> ORD', risk: '88%', reason: 'Traffic' },
     ];
@@ -45,8 +40,8 @@ export default function RightSidebar() {
                     
                     {/* Effectivity Score */}
                     <div 
-                        className="bg-slate-800/40 border border-slate-700/50 rounded-xl p-4 mb-4 backdrop-blur-sm overflow-hidden"
-                        onClick={() => setIsModalOpen(true)}
+                        className="bg-slate-800/40 border border-slate-700/50 rounded-xl p-4 mb-4 backdrop-blur-sm overflow-hidden h-32 hover:scale-105 transition-transform duration-200"
+                        onClick={() => setActiveModal('accuracy')}
                         style={{ cursor: 'pointer' }}
                     >
                         <h3 className={titleClasses}>
@@ -62,14 +57,17 @@ export default function RightSidebar() {
                         </div>
                     </div>
 
-                    {/* Predictions of the Day */}
-                    <div className={cardClasses}>
+                    {/* Recent Predictions */}
+                    <div 
+                        className={cardClasses + " cursor-pointer hover:scale-105 transition-transform duration-200"}
+                        onClick={() => setActiveModal('recent')}
+                    >
                         <h3 className={titleClasses}>
                             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-                            Today's Forecasts
+                            Recent Predictions
                         </h3>
                         <div className="space-y-3">
-                            {predictionsOfDay.map(p => (
+                            {userPredictions.map(p => (
                                 <div key={p.id} className="flex items-center justify-between text-sm group cursor-pointer hover:bg-white/5 p-2 rounded-lg transition-colors">
                                     <div>
                                         <div className="font-bold text-slate-200">{p.flight}</div>
@@ -88,30 +86,17 @@ export default function RightSidebar() {
                         </div>
                     </div>
 
-                    {/* Recent Predictions */}
-                    <div className={cardClasses}>
-                        <h3 className={titleClasses}>
-                            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-                            Recent Checks
-                        </h3>
-                        <div className="space-y-2">
-                            {recentPredictions.map(p => (
-                                <div key={p.id} className="flex items-center justify-between text-sm p-2 bg-slate-900/50 rounded-lg border border-slate-700/30">
-                                    <span className="font-mono text-slate-300">{p.flight}</span>
-                                    <span className="text-xs text-slate-500">{p.date}</span>
-                                </div>
-                            ))}
-                        </div>
-                    </div>
-
-                    {/* High Risk Flights */}
-                    <div className={cardClasses}>
+                    {/* High Risk Alerts */}
+                    <div 
+                        className={cardClasses + " cursor-pointer hover:scale-105 transition-transform duration-200"}
+                        onClick={() => setActiveModal('risks')}
+                    >
                         <h3 className={`${titleClasses} text-red-400/90`}>
                             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
-                            High Risk Alerts
+                            Current Risk Alerts
                         </h3>
                         <div className="space-y-3">
-                            {riskFlights.map(p => (
+                            {currentRiskFactors.map(p => (
                                 <div key={p.id} className="relative overflow-hidden p-3 rounded-lg bg-red-500/5 border border-red-500/20 group hover:border-red-500/40 transition-all">
                                     <div className="flex justify-between items-start mb-1">
                                         <span className="font-bold text-red-200">{p.flight}</span>
@@ -141,11 +126,11 @@ export default function RightSidebar() {
                 </div>
             </div>
 
-            {isModalOpen && createPortal(
+            {activeModal && createPortal(
                     <div className='fixed inset-0 flex items-center justify-center z-[100] transition-all duration-300'>
                         <div 
                             className='fixed inset-0 bg-slate-900/80 backdrop-blur-sm transition-opacity duration-300'
-                            onClick={() => setIsModalOpen(false)}
+                            onClick={() => setActiveModal(null)}
                         />
                         <div 
                             className='bg-slate-800 border border-slate-700 text-white p-6 rounded-2xl shadow-2xl max-w-lg w-full mx-4 relative z-10 overflow-hidden animate-model-open'
@@ -153,9 +138,11 @@ export default function RightSidebar() {
                         >
                             <div className="flex justify-between items-center mb-6">
                                 <h2 className='text-xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-cyan-400'>
-                                    Model Documentation
+                                    {activeModal === 'accuracy' && 'Model Documentation'}
+                                    {activeModal === 'recent' && 'Prediction History'}
+                                    {activeModal === 'risks' && 'Risk Analysis'}
                                 </h2>
-                                <button onClick={() => setIsModalOpen(false)} className="text-slate-400 hover:text-white transition-colors p-1 hover:bg-slate-700 rounded-full">
+                                <button onClick={() => setActiveModal(null)} className="text-slate-400 hover:text-white transition-colors p-1 hover:bg-slate-700 rounded-full">
                                     <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                                     </svg>
@@ -163,52 +150,107 @@ export default function RightSidebar() {
                             </div>
                             
                             <div className="space-y-6">
-                                {/* Model Description */}
-                                <div className="bg-slate-700/30 p-4 rounded-xl">
-                                    <h3 className="text-sm font-bold text-cyan-400 uppercase tracking-wider mb-2">Model Architecture</h3>
-                                    <p className="text-slate-300 text-sm leading-relaxed">
-                                        Random Forest Classifier trained to predict flight delays based on historical flight data, weather conditions, and airport traffic patterns.
-                                    </p>
-                                </div>
+                                {activeModal === 'accuracy' && (
+                                    <>
+                                        {/* Model Description */}
+                                        <div className="bg-slate-700/30 p-4 rounded-xl">
+                                            <h3 className="text-sm font-bold text-cyan-400 uppercase tracking-wider mb-2">Model Architecture</h3>
+                                            <p className="text-slate-300 text-sm leading-relaxed">
+                                                Random Forest Classifier trained to predict flight delays based on historical flight data, weather conditions, and airport traffic patterns.
+                                            </p>
+                                        </div>
 
-                                {/* Parameters & Datasets */}
-                                <div className="grid grid-cols-2 gap-4">
+                                        {/* Backend Integration Info */}
+                                        <div className="bg-slate-700/30 p-4 rounded-xl mt-4 border border-blue-500/20">
+                                            <h3 className="text-sm font-bold text-blue-400 uppercase tracking-wider mb-2 flex items-center gap-2">
+                                                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 12h14M5 12a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v4a2 2 0 01-2 2M5 12a2 2 0 00-2 2v4a2 2 0 002 2h14a2 2 0 002-2v-4a2 2 0 00-2-2m-2-4h.01M17 16h.01" />
+                                                </svg>
+                                                Backend API Integration
+                                            </h3>
+                                            <p className="text-slate-300 text-sm leading-relaxed mb-2">
+                                                The model is served via a <strong>FastAPI</strong> backend running on Python. It exposes a RESTful endpoint <code>/api/predict</code> that accepts flight parameters and returns real-time risk assessments.
+                                            </p>
+                                            <div className="flex flex-wrap gap-2 mt-2">
+                                                <span className="px-2 py-1 bg-blue-500/10 border border-blue-500/20 rounded text-xs text-blue-300 font-mono">FastAPI</span>
+                                                <span className="px-2 py-1 bg-yellow-500/10 border border-yellow-500/20 rounded text-xs text-yellow-300 font-mono">Scikit-Learn</span>
+                                                <span className="px-2 py-1 bg-green-500/10 border border-green-500/20 rounded text-xs text-green-300 font-mono">Pandas</span>
+                                            </div>
+                                        </div>
+
+                                        {/* Parameters & Datasets */}
+                                        <div className="grid grid-cols-2 gap-4">
+                                            <div className="bg-slate-700/30 p-4 rounded-xl">
+                                                <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Training Data</h3>
+                                                <ul className="text-sm text-slate-300 space-y-1">
+                                                    <li>• Bureau of Transportation Statistics (2020-2024)</li>
+                                                    <li>• NOAA Weather Data</li>
+                                                    <li>• 5M+ Flight Records</li>
+                                                </ul>
+                                            </div>
+                                            <div className="bg-slate-700/30 p-4 rounded-xl">
+                                                <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Key Features</h3>
+                                                <ul className="text-sm text-slate-300 space-y-1">
+                                                    <li>• Departure Delay</li>
+                                                    <li>• Carrier Code</li>
+                                                    <li>• Wind Speed/Precip</li>
+                                                    <li>• Temporal Features</li>
+                                                </ul>
+                                            </div>
+                                        </div>
+
+                                        {/* Version & Changelog */}
+                                        <div className="flex items-center justify-between bg-slate-700/30 p-4 rounded-xl border border-slate-600/50">
+                                            <div>
+                                                <p className="text-xs text-slate-400 uppercase tracking-wider">Current Version</p>
+                                                <p className="text-xl font-bold text-white font-mono">v2.4.1</p>
+                                            </div>
+                                            <button className="px-4 py-2 bg-slate-600 hover:bg-slate-500 text-white text-sm font-medium rounded-lg transition-colors flex items-center gap-2">
+                                                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                                </svg>
+                                                View Changelog
+                                            </button>
+                                        </div>
+                                    </>
+                                )}
+
+                                {activeModal === 'recent' && (
                                     <div className="bg-slate-700/30 p-4 rounded-xl">
-                                        <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Training Data</h3>
-                                        <ul className="text-sm text-slate-300 space-y-1">
-                                            <li>• Bureau of Transportation Statistics (2020-2024)</li>
-                                            <li>• NOAA Weather Data</li>
-                                            <li>• 5M+ Flight Records</li>
+                                        <p className="text-slate-300 text-sm leading-relaxed mb-4">
+                                            This section displays a history of flight predictions you have generated during this session. It allows you to quickly revisit previous results and compare risk factors across different flights.
+                                        </p>
+                                        <p className="text-slate-400 text-xs italic">
+                                            * History is stored locally and clears when the session ends.
+                                        </p>
+                                    </div>
+                                )}
+
+                                {activeModal === 'risks' && (
+                                    <div className="bg-slate-700/30 p-4 rounded-xl">
+                                        <p className="text-slate-300 text-sm leading-relaxed mb-4">
+                                            These alerts highlight specific high-probability delay factors for your currently selected flight prediction. The model analyzes weather patterns, historical traffic, and carrier performance to flag potential issues.
+                                        </p>
+                                        <ul className="text-sm text-slate-300 space-y-2">
+                                            <li className="flex items-start gap-2">
+                                                <span className="text-red-400 font-bold">!</span>
+                                                <span><strong className="text-slate-200">Weather:</strong> Severe thunderstorms or high winds at departure/arrival airports.</span>
+                                            </li>
+                                            <li className="flex items-start gap-2">
+                                                <span className="text-red-400 font-bold">!</span>
+                                                <span><strong className="text-slate-200">Traffic:</strong> High congestion levels or ground stops reported.</span>
+                                            </li>
                                         </ul>
                                     </div>
-                                    <div className="bg-slate-700/30 p-4 rounded-xl">
-                                        <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Key Features</h3>
-                                        <ul className="text-sm text-slate-300 space-y-1">
-                                            <li>• Departure Delay</li>
-                                            <li>• Carrier Code</li>
-                                            <li>• Wind Speed/Precip</li>
-                                            <li>• Temporal Features</li>
-                                        </ul>
-                                    </div>
-                                </div>
-
-                                {/* Version & Changelog */}
-                                <div className="flex items-center justify-between bg-slate-700/30 p-4 rounded-xl border border-slate-600/50">
-                                    <div>
-                                        <p className="text-xs text-slate-400 uppercase tracking-wider">Current Version</p>
-                                        <p className="text-xl font-bold text-white font-mono">v2.4.1</p>
-                                    </div>
-                                    <button className="px-4 py-2 bg-slate-600 hover:bg-slate-500 text-white text-sm font-medium rounded-lg transition-colors flex items-center gap-2">
-                                        <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                        </svg>
-                                        View Changelog
-                                    </button>
-                                </div>
+                                )}
                             </div>
 
                             <div className="mt-6 pt-4 border-t border-slate-700/50 text-center">
-                                <p className='text-xs text-slate-500'>Last evaluated on validation set: <span className="text-slate-300">Today, 09:45 AM</span></p>
+                                <p className='text-xs text-slate-500'>
+                                    {activeModal === 'accuracy' && <>Last evaluated on validation set: <span className="text-slate-300">Today, 09:45 AM</span></>}
+                                    {activeModal === 'recent' && <>Showing {userPredictions.length} recent predictions.</>}
+                                    {activeModal === 'risks' && <>Alerts updated in real-time.</>}
+                                </p>
                             </div>
                         </div>
                     </div>,
